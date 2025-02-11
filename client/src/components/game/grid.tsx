@@ -157,6 +157,7 @@ export function Grid() {
                     type="number"
                     value={value}
                     onChange={(e) => handleInput(i, j, e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={`h-12 text-center ${
                       isCorrect ? 'text-primary font-medium' : ''
                     }`}
