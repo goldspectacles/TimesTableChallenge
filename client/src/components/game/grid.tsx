@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { createGame, checkAnswer, type GridCell } from "@/lib/game";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Celebration } from "./celebration";
 import { toast } from "@/hooks/use-toast";
@@ -12,25 +12,35 @@ export function Grid() {
   const [completedCols, setCompletedCols] = useState<number[]>([]);
   const [isComplete, setIsComplete] = useState(false);
 
-  const handleInput = (row: number, col: number, value: string) => {
-    const numValue = parseInt(value);
-    if (isNaN(numValue)) return;
+  // Debounced validation to avoid premature error messages
+  const validateAnswer = useCallback((cell: GridCell, value: number) => {
+    const expectedLength = cell.answer.toString().length;
+    const currentLength = value.toString().length;
 
-    const key = `${row},${col}`;
-    const isCorrect = checkAnswer(game.grid[row][col], numValue);
-
-    setAnswers(prev => ({
-      ...prev,
-      [key]: numValue
-    }));
-
-    if (!isCorrect && value.length > 0) {
+    // Only validate if the input length matches the expected length
+    if (currentLength === expectedLength && !checkAnswer(cell, value)) {
       toast({
         title: "Try again!",
         description: "That's not the correct answer",
         variant: "destructive"
       });
     }
+  }, []);
+
+  const handleInput = (row: number, col: number, value: string) => {
+    const numValue = parseInt(value);
+    if (isNaN(numValue)) return;
+
+    const key = `${row},${col}`;
+    const cell = game.grid[row][col];
+
+    setAnswers(prev => ({
+      ...prev,
+      [key]: numValue
+    }));
+
+    // Add a small delay before validation
+    setTimeout(() => validateAnswer(cell, numValue), 500);
   };
 
   useEffect(() => {
@@ -82,15 +92,15 @@ export function Grid() {
         newCompletedCols.length + completedCols.length === 12) {
       setIsComplete(true);
     }
-  }, [answers, game.grid, completedRows, completedCols]);
+  }, [answers, game.grid, completedRows, completedCols, validateAnswer]);
 
   return (
     <div className="relative overflow-x-auto">
       {isComplete && <Celebration />}
-      
+
       <div className="grid grid-cols-[auto_repeat(12,1fr)] gap-1 min-w-[800px]">
         <div className="w-12 h-12" /> {/* Empty corner cell */}
-        
+
         {/* Column headers */}
         {game.colNumbers.map((num, i) => (
           <motion.div
