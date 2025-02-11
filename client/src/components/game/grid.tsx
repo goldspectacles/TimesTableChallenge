@@ -190,7 +190,7 @@ export function Grid() {
                 <div
                   key={key}
                   className={`relative border ${
-                    isCorrect ? 'border-primary' : 'border-muted-foreground/20'
+                    isCorrect ? 'border-primary border-2 shadow-[0_0_0_1px_rgba(0,200,150,0.1)]' : 'border-muted-foreground/20'
                   }`}
                 >
                   <Input
