@@ -203,7 +203,7 @@ export function Grid() {
                       if (el) inputRefs.current[key] = el;
                     }}
                     className={`h-12 text-center ${
-                      isCorrect ? 'text-primary font-medium' : ''
+                      isCorrect ? 'text-foreground font-semibold' : ''
                     }`}
                     min={1}
                     max={144}
