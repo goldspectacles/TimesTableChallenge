@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { createGame, checkAnswer, type GridCell } from "@/lib/game";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Celebration } from "./celebration";
+import { Timer } from "./timer";
 import { toast } from "@/hooks/use-toast";
 import React from 'react';
 
@@ -12,6 +13,8 @@ export function Grid() {
   const [completedRows, setCompletedRows] = useState<number[]>([]);
   const [completedCols, setCompletedCols] = useState<number[]>([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
+  const inputRefs = useRef<Record<string, HTMLInputElement>>({});
 
   // Debounced validation to avoid premature error messages
   const validateAnswer = useCallback((cell: GridCell, value: string) => {
@@ -28,8 +31,10 @@ export function Grid() {
         description: "That's not the correct answer",
         variant: "destructive"
       });
+    } else if (checkAnswer(cell, numValue) && !timerStarted) {
+      setTimerStarted(true);
     }
-  }, []);
+  }, [timerStarted]);
 
   const handleInput = (row: number, col: number, value: string) => {
     // Allow empty string and only numbers
@@ -47,6 +52,33 @@ export function Grid() {
     if (value) {
       setTimeout(() => validateAnswer(cell, value), 500);
     }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, row: number, col: number) => {
+    const key = e.key;
+    let nextRow = row;
+    let nextCol = col;
+
+    switch (key) {
+      case 'ArrowUp':
+        nextRow = Math.max(0, row - 1);
+        break;
+      case 'ArrowDown':
+        nextRow = Math.min(11, row + 1);
+        break;
+      case 'ArrowLeft':
+        nextCol = Math.max(0, col - 1);
+        break;
+      case 'ArrowRight':
+        nextCol = Math.min(11, col + 1);
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    const nextKey = `${nextRow},${nextCol}`;
+    inputRefs.current[nextKey]?.focus();
   };
 
   useEffect(() => {
@@ -99,12 +131,17 @@ export function Grid() {
     if (newCompletedRows.length + completedRows.length === 12 &&
         newCompletedCols.length + completedCols.length === 12) {
       setIsComplete(true);
+      setTimerStarted(false); // Stop the timer when game is complete
     }
   }, [answers, game.grid, completedRows, completedCols]);
 
   return (
     <div className="relative overflow-x-auto">
       {isComplete && <Celebration />}
+
+      <div className="mb-4">
+        <Timer isRunning={timerStarted} />
+      </div>
 
       <div className="grid grid-cols-[auto_repeat(12,1fr)] gap-1 min-w-[800px]">
         <div className="w-12 h-12" /> {/* Empty corner cell */}
@@ -158,6 +195,10 @@ export function Grid() {
                     value={value}
                     onChange={(e) => handleInput(i, j, e.target.value)}
                     onWheel={(e) => e.currentTarget.blur()}
+                    onKeyDown={(e) => handleKeyDown(e, i, j)}
+                    ref={(el) => {
+                      if (el) inputRefs.current[key] = el;
+                    }}
                     className={`h-12 text-center ${
                       isCorrect ? 'text-primary font-medium' : ''
                     }`}
