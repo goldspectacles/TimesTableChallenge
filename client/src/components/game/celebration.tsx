@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import confetti from 'canvas-confetti';
 import { useEffect } from "react";
+import { Trophy } from "lucide-react";
 
 export function Celebration() {
   useEffect(() => {
@@ -41,9 +42,16 @@ export function Celebration() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.8 }}
       >
-        🎉 Congratulations! 🎉
-        <br />
-        <span className="text-2xl">You've completed the times table grid!</span>
+        <Trophy className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
+        <div className="space-y-2">
+          <div>🏆 Personal Best! 🏆</div>
+          <div className="text-2xl">
+            You've Mastered the Times Tables!
+          </div>
+          <div className="text-xl font-normal mt-2">
+            Your math muscles are getting stronger! 💪
+          </div>
+        </div>
       </motion.div>
     </motion.div>
   );

@@ -27,8 +27,8 @@ export function Grid() {
     // Only validate if the input length matches the expected length
     if (currentLength === expectedLength && !checkAnswer(cell, numValue)) {
       toast({
-        title: "Try again!",
-        description: "That's not the correct answer",
+        title: "One more rep! 💪",
+        description: "Keep pushing! That's not quite right",
         variant: "destructive"
       });
     } else if (checkAnswer(cell, numValue) && !timerStarted) {
@@ -107,15 +107,15 @@ export function Grid() {
       if (rowComplete && !completedRows.includes(i)) {
         newCompletedRows.push(i);
         toast({
-          title: "Row Complete! 🎉",
-          description: "Great job completing this row!"
+          title: "Set Complete! 💪",
+          description: "Great form! You've mastered this multiplication set!"
         });
       }
       if (colComplete && !completedCols.includes(i)) {
         newCompletedCols.push(i);
         toast({
-          title: "Column Complete! 🎉",
-          description: "Excellent work on this column!"
+          title: "Another Set Done! 🏋️‍♂️",
+          description: "You're getting stronger at these multiplications!"
         });
       }
     }
@@ -139,8 +139,11 @@ export function Grid() {
     <div className="relative overflow-x-auto">
       {isComplete && <Celebration />}
 
-      <div className="mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <Timer isRunning={timerStarted} />
+        <div className="text-sm text-muted-foreground">
+          Complete rows and columns to build your math strength!
+        </div>
       </div>
 
       <div className="grid grid-cols-[auto_repeat(12,1fr)] gap-1 min-w-[800px]">
